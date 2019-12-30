@@ -56,8 +56,16 @@ func seachFile(path string) {
 	i := 0
 	err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
-			fmt.Printf("%s %s %d %s %s\n", info.Name(), p, info.Size(), info.ModTime(), getFileHash(p))
-			f.List[i] = Item{Filename: info.Name(), P: p, Size: info.Size(), Modtime: info.ModTime(), Hash: getFileHash(p)}
+			//fmt.Printf("%s %s %d %s %s\n", info.Name(), p, info.Size(), info.ModTime(), getFileHash(p))
+			fp, err := filepath.Abs(p)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fp = filepath.Clean(fp)
+			if err != nil {
+				log.Fatal(err)
+			}
+			f.List[i] = Item{Filename: info.Name(), P: fp, Size: info.Size(), Modtime: info.ModTime(), Hash: getFileHash(p)}
 			i++
 		}
 		return nil
