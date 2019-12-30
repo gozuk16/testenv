@@ -2,15 +2,31 @@ package cmd
 
 import (
 	"crypto/sha1"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
+
+type File struct {
+	Title   string       `json:"title"`
+	Message string       `json:"message"`
+	List    map[int]Item `json:"list"`
+}
+
+type Item struct {
+	Filename string    `json:"filename"`
+	P        string    `json:"p"`
+	Modtime  time.Time `json:"modtime"`
+	Size     int64     `json:"size"`
+	Hash     string    `json:"hash"`
+}
 
 // addCmd represents the add command
 var addCmd = &cobra.Command{
@@ -35,14 +51,27 @@ to quickly create a Cobra application.`,
 
 func seachFile(path string) {
 	fmt.Println(filepath.Dir(filepath.Clean(path)))
+	var f = File{}
+	f.List = map[int]Item{}
+	i := 0
 	err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			fmt.Printf("%s %s %d %s %s\n", info.Name(), p, info.Size(), info.ModTime(), getFileHash(p))
+			f.List[i] = Item{Filename: info.Name(), P: p, Size: info.Size(), Modtime: info.ModTime(), Hash: getFileHash(p)}
+			i++
 		}
 		return nil
 	})
 	if err != nil {
 		log.Fatal(err)
+	}
+	if i > 0 {
+		bytes, err := json.MarshalIndent(&f, "", "    ")
+		if err != nil {
+			fmt.Println("Err: ", err)
+		}
+		jsonstring := string(bytes)
+		fmt.Println(jsonstring)
 	}
 }
 
