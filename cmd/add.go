@@ -22,10 +22,11 @@ type File struct {
 
 type Item struct {
 	Filename string    `json:"filename"`
-	P        string    `json:"p"`
+	Fullpath string    `json:"fullpath"`
 	Modtime  time.Time `json:"modtime"`
 	Size     int64     `json:"size"`
-	Hash     string    `json:"hash"`
+	Rw       bool      `json:"rw"`
+	Sha1     string    `json:"sha1"`
 }
 
 // addCmd represents the add command
@@ -50,7 +51,7 @@ to quickly create a Cobra application.`,
 }
 
 func seachFile(path string) {
-	fmt.Println(filepath.Dir(filepath.Clean(path)))
+	//fmt.Println(filepath.Dir(filepath.Clean(path)))
 	var f = File{}
 	f.List = map[int]Item{}
 	i := 0
@@ -65,7 +66,13 @@ func seachFile(path string) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			f.List[i] = Item{Filename: info.Name(), P: fp, Size: info.Size(), Modtime: info.ModTime(), Hash: getFileHash(p)}
+			f.List[i] = Item{
+				Filename: info.Name(),
+				Fullpath: fp,
+				Size:     info.Size(),
+				Modtime:  info.ModTime(),
+				Rw:       info.Mode().IsRegular(),
+				Sha1:     getFileHash(p)}
 			i++
 		}
 		return nil
