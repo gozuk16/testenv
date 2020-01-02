@@ -21,12 +21,14 @@ type File struct {
 }
 
 type Item struct {
-	Filename string    `json:"filename"`
-	Fullpath string    `json:"fullpath"`
-	Modtime  time.Time `json:"modtime"`
-	Size     int64     `json:"size"`
-	Rw       bool      `json:"rw"`
-	Sha1     string    `json:"sha1"`
+	Filename   string      `json:"filename"`
+	Fullpath   string      `json:"fullpath"`
+	Modtime    time.Time   `json:"modtime"`
+	Size       int64       `json:"size"`
+	Rw         bool        `json:"rw"`
+	Mode       os.FileMode `json:"mode"`
+	Modestring string      `json:"modestring"`
+	Sha1       string      `json:"sha1"`
 }
 
 // addCmd represents the add command
@@ -67,12 +69,14 @@ func seachFile(path string) {
 				log.Fatal(err)
 			}
 			f.List[i] = Item{
-				Filename: info.Name(),
-				Fullpath: fp,
-				Size:     info.Size(),
-				Modtime:  info.ModTime(),
-				Rw:       info.Mode().IsRegular(),
-				Sha1:     getFileHash(p)}
+				Filename:   info.Name(),
+				Fullpath:   fp,
+				Size:       info.Size(),
+				Modtime:    info.ModTime(),
+				Rw:         info.Mode().IsRegular(),
+				Mode:       info.Mode().Perm(),
+				Modestring: info.Mode().String(),
+				Sha1:       getFileHash(p)}
 			i++
 		}
 		return nil
