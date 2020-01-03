@@ -16,6 +16,7 @@ import (
 
 type File struct {
 	Title   string       `json:"title"`
+	Num     int          `json:"num"`
 	Message string       `json:"message"`
 	List    map[int]Item `json:"list"`
 }
@@ -55,9 +56,18 @@ to quickly create a Cobra application.`,
 func seachFile(path string) {
 	//fmt.Println(filepath.Dir(filepath.Clean(path)))
 	var f = File{}
+	origin, err := filepath.Abs(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	origin = filepath.Clean(origin)
+	if err != nil {
+		log.Fatal(err)
+	}
+	f.Title = origin
 	f.List = map[int]Item{}
 	i := 0
-	err := filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			//fmt.Printf("%s %s %d %s %s\n", info.Name(), p, info.Size(), info.ModTime(), getFileHash(p))
 			fp, err := filepath.Abs(p)
@@ -85,6 +95,7 @@ func seachFile(path string) {
 		log.Fatal(err)
 	}
 	if i > 0 {
+		f.Num = i
 		bytes, err := json.MarshalIndent(&f, "", "    ")
 		if err != nil {
 			fmt.Println("Err: ", err)
@@ -95,7 +106,6 @@ func seachFile(path string) {
 }
 
 func getFileHash(path string) string {
-
 	f := strings.NewReader(path)
 	hash := sha1.New()
 	if _, err := io.Copy(hash, f); err != nil {
