@@ -14,14 +14,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type File struct {
-	Title   string       `json:"title"`
-	Num     int          `json:"num"`
-	Message string       `json:"message"`
-	List    map[int]Item `json:"list"`
-}
-
 type Item struct {
+	Id         int         `json:"id"`
 	Filename   string      `json:"filename"`
 	Fullpath   string      `json:"fullpath"`
 	Modtime    time.Time   `json:"modtime"`
@@ -30,6 +24,14 @@ type Item struct {
 	Mode       os.FileMode `json:"mode"`
 	Modestring string      `json:"modestring"`
 	Sha1       string      `json:"sha1"`
+}
+
+type File struct {
+	Title   string `json:"title"`
+	Num     int    `json:"num"`
+	Message string `json:"message"`
+	List    []Item `json:"list"`
+	//List    map[int]Item `json:"list"`
 }
 
 // addCmd represents the add command
@@ -65,7 +67,7 @@ func seachFile(path string) {
 		log.Fatal(err)
 	}
 	f.Title = origin
-	f.List = map[int]Item{}
+	f.List = make([]Item, 0)
 	i := 0
 	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
@@ -78,15 +80,17 @@ func seachFile(path string) {
 			if err != nil {
 				log.Fatal(err)
 			}
-			f.List[i] = Item{
-				Filename:   info.Name(),
-				Fullpath:   fp,
-				Size:       info.Size(),
-				Modtime:    info.ModTime(),
-				Rw:         info.Mode().IsRegular(),
-				Mode:       info.Mode().Perm(),
-				Modestring: info.Mode().String(),
-				Sha1:       getFileHash(p)}
+			//f.List[i] = Item{
+			f.List = append(f.List, Item{
+				i + 1,
+				info.Name(),
+				fp,
+				info.ModTime(),
+				info.Size(),
+				info.Mode().IsRegular(),
+				info.Mode().Perm(),
+				info.Mode().String(),
+				getFileHash(p)})
 			i++
 		}
 		return nil
