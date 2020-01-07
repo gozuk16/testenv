@@ -6,33 +6,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the root command
 var RootCmd = &cobra.Command{
-	Use:   "root",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:   "gret",
+	Short: "Resource and Environment testing tool implemented with Go",
+	Long: `Resource and Environment testing tool implemented with Go.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Usualy usecase are file exist test and environment value exist test.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("root called")
 	},
 }
-
-/*
-func init() {
-	RootCmd.AddCommand(RootCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// rootCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-*/

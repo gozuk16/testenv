@@ -37,13 +37,8 @@ type File struct {
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "add path",
+	Long:  `add files test configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("add called")
 		if len(args) > 0 {
@@ -56,7 +51,6 @@ to quickly create a Cobra application.`,
 }
 
 func seachFile(path string) {
-	//fmt.Println(filepath.Dir(filepath.Clean(path)))
 	var f = File{}
 	origin, err := filepath.Abs(path)
 	if err != nil {
@@ -71,7 +65,6 @@ func seachFile(path string) {
 	i := 0
 	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
-			//fmt.Printf("%s %s %d %s %s\n", info.Name(), p, info.Size(), info.ModTime(), getFileHash(p))
 			fp, err := filepath.Abs(p)
 			if err != nil {
 				log.Fatal(err)
