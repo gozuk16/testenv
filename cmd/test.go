@@ -9,6 +9,9 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+
+	"github.com/shiena/ansicolor"
+	"github.com/wsxiaoys/terminal/color"
 )
 
 // testCmd represents the add command
@@ -33,18 +36,29 @@ func testFiles(path string) {
 	if len(list) > 0 {
 		for _, l := range list {
 			/*
-				fmt.Printf("\n  Id: %d\n", l.Id)
-				fmt.Printf("  Filename: %v\n", l.Filename)
-				fmt.Printf("  Fullpath: %v\n", l.Fullpath)
-				fmt.Printf("  Modtime: %v\n", l.Modtime)
-				fmt.Printf("  Size: %d\n", l.Size)
-				fmt.Printf("  Rw: %v\n", l.Rw)
-				fmt.Printf("  Mode: %d\n", l.Mode)
-				fmt.Printf("  Modestring: %v\n", l.Modestring)
-				fmt.Printf("  Sha1: %v\n", l.Sha1)
+					fmt.Printf("\n  Id: %d\n", l.Id)
+					fmt.Printf("  Filename: %v\n", l.Filename)
+					fmt.Printf("  Fullpath: %v\n", l.Fullpath)
+					fmt.Printf("  Modtime: %v\n", l.Modtime)
+					fmt.Printf("  Size: %d\n", l.Size)
+					fmt.Printf("  Rw: %v\n", l.Rw)
+					fmt.Printf("  Mode: %d\n", l.Mode)
+					fmt.Printf("  Modestring: %v\n", l.Modestring)
+					fmt.Printf("  Sha1: %v\n", l.Sha1)
+
+				fmt.Printf("%5d: %v, %v\n", l.Id, testFile(l), l.Fullpath)
 			*/
 
-			fmt.Printf("%5d: %v, %v\n", l.Id, testFile(l), l.Fullpath)
+			var result string
+			t, m := testFile(l)
+			if t {
+				result = fmt.Sprintf("%5d| @{g}%-12v@{|}| %v\n", l.Id, m, l.Fullpath)
+			} else {
+				result = fmt.Sprintf("%5d| @{r}%-12v@{|}| %v\n", l.Id, m, l.Fullpath)
+			}
+			w := ansicolor.NewAnsiColorWriter(os.Stdout)
+			color.Fprintf(w, result)
+
 		}
 	}
 
@@ -79,14 +93,14 @@ func readFile(path string) []Item {
 	return nil
 }
 
-func testFile(item Item) string {
+func testFile(item Item) (bool, string) {
 	if !isExist(item.Fullpath) {
-		return "exist: false"
+		return false, "exist: false"
 	}
 	if !isMatch(item.Fullpath, item.Sha1) {
-		return "match: false"
+		return false, "match: false"
 	}
-	return "match: true"
+	return true, "match: true"
 }
 
 func isExist(path string) bool {
