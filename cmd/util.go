@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"crypto/sha1"
-	"fmt"
+	"encoding/hex"
 	"io"
 	"log"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -30,12 +29,17 @@ type File struct {
 }
 
 func getFileHash(path string) string {
-	f := strings.NewReader(path)
+	file, err := os.Open(path)
+	if err != nil {
+		return "file not found"
+	}
+	defer file.Close()
+
 	hash := sha1.New()
-	if _, err := io.Copy(hash, f); err != nil {
+	if _, err := io.Copy(hash, file); err != nil {
 		log.Fatal(err)
 	}
 	sum := hash.Sum(nil)
 
-	return fmt.Sprintf("%x", sum)
+	return hex.EncodeToString(sum)
 }
