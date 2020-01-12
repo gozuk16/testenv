@@ -34,32 +34,21 @@ func testFiles(path string) {
 
 	list := readFile(path)
 	if len(list) > 0 {
+		var pass, fail int
+		w := ansicolor.NewAnsiColorWriter(os.Stdout)
 		for _, l := range list {
-			/*
-					fmt.Printf("\n  Id: %d\n", l.Id)
-					fmt.Printf("  Filename: %v\n", l.Filename)
-					fmt.Printf("  Fullpath: %v\n", l.Fullpath)
-					fmt.Printf("  Modtime: %v\n", l.Modtime)
-					fmt.Printf("  Size: %d\n", l.Size)
-					fmt.Printf("  Rw: %v\n", l.Rw)
-					fmt.Printf("  Mode: %d\n", l.Mode)
-					fmt.Printf("  Modestring: %v\n", l.Modestring)
-					fmt.Printf("  Sha1: %v\n", l.Sha1)
-
-				fmt.Printf("%5d: %v, %v\n", l.Id, testFile(l), l.Fullpath)
-			*/
-
 			var result string
-			t, m := testFile(l)
-			if t {
-				result = fmt.Sprintf("%5d| @{g}%-12v@{|}| %v\n", l.Id, m, l.Fullpath)
+			r, msg := testFile(l)
+			if r {
+				result = fmt.Sprintf("%5d| @{g}%-12v@{|}| %v\n", l.Id, msg, l.Fullpath)
+				pass++
 			} else {
-				result = fmt.Sprintf("%5d| @{r}%-12v@{|}| %v\n", l.Id, m, l.Fullpath)
+				result = fmt.Sprintf("%5d| @{r}%-12v@{|}| %v\n", l.Id, msg, l.Fullpath)
+				fail++
 			}
-			w := ansicolor.NewAnsiColorWriter(os.Stdout)
 			color.Fprintf(w, result)
-
 		}
+		color.Fprintf(w, "\n@{g}PASS: %d@{|} / @{r}FAIL: %d@{|}\n", pass, fail)
 	}
 
 }
