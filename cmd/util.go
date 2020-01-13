@@ -19,6 +19,7 @@ type Item struct {
 	Mode       os.FileMode `json:"mode"`
 	Modestring string      `json:"modestring"`
 	Sha1       string      `json:"sha1"`
+	Except     string      `json:"except"`
 }
 
 type File struct {

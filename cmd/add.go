@@ -58,7 +58,8 @@ func seachFile(path string) {
 				info.Mode().IsRegular(),
 				info.Mode().Perm(),
 				info.Mode().String(),
-				getFileHash(p)})
+				getFileHash(p),
+				"match"})
 			i++
 		}
 		return nil
