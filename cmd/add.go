@@ -17,16 +17,23 @@ var addCmd = &cobra.Command{
 	Long:  `add files test configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("add called")
+
+		a, err := cmd.Flags().GetBool("all")
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Printf("-a = %v\n", a)
+
 		if len(args) > 0 {
 			for i, _ := range args {
 				fmt.Println(args[i])
 			}
-			seachFile(args[0])
+			seachFile(args[0], a)
 		}
 	},
 }
 
-func seachFile(path string) {
+func seachFile(path string, optA bool) {
 	var f = File{}
 	origin, err := filepath.Abs(path)
 	if err != nil {
@@ -36,31 +43,39 @@ func seachFile(path string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	f.Title = origin
+	f.Title = filepath.FromSlash(origin)
 	f.List = make([]Item, 0)
 	i := 0
 	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			fp, err := filepath.Abs(p)
-			if err != nil {
-				log.Fatal(err)
+		fp, err := filepath.Abs(p)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fp = filepath.Clean(fp)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if info.IsDir() {
+			if isDot(fp) {
+				fmt.Printf("skip path: %v\n", fp)
+				return filepath.SkipDir
 			}
-			fp = filepath.Clean(fp)
-			if err != nil {
-				log.Fatal(err)
+		} else {
+			if optA && !isDot(fp) {
+				f.List = append(f.List, Item{
+					i + 1,                   // id
+					info.Name(),             // filename
+					filepath.FromSlash(fp),  // fullpath
+					info.ModTime(),          // modtime
+					info.Size(),             // size
+					info.Mode().IsRegular(), // rw
+					info.Mode().Perm(),      // mode
+					info.Mode().String(),    // modestring
+					getFileHash(p),          // sha1
+					"match"})                // except
+				i++
 			}
-			f.List = append(f.List, Item{
-				i + 1,
-				info.Name(),
-				fp,
-				info.ModTime(),
-				info.Size(),
-				info.Mode().IsRegular(),
-				info.Mode().Perm(),
-				info.Mode().String(),
-				getFileHash(p),
-				"match"})
-			i++
 		}
 		return nil
 	})
@@ -78,16 +93,22 @@ func seachFile(path string) {
 	}
 }
 
+func isDot(path string) bool {
+	str := filepath.Base(path)
+	for pos, c := range str {
+		if pos == 0 && c != '.' {
+			return false
+		}
+		fmt.Printf("位置: %d 文字: %v\n", pos, string([]rune{c}))
+		if pos == 1 && c != '.' {
+			return true
+		}
+	}
+	return true
+}
+
 func init() {
 	RootCmd.AddCommand(addCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// addCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// addCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	addCmd.Flags().BoolP("all", "a", false, "Include directory entries whose names begin with a dot (.).")
 }
