@@ -57,12 +57,14 @@ func seachFile(path string, optA bool) {
 		}
 
 		if info.IsDir() {
-			if isDot(fp) {
+			if !optA && isDot(fp) {
 				fmt.Printf("skip path: %v\n", fp)
 				return filepath.SkipDir
 			}
 		} else {
-			if optA && !isDot(fp) {
+			if !optA && isDot(fp) {
+				fmt.Printf("skip file: %v\n", fp)
+			} else {
 				f.List = append(f.List, Item{
 					i + 1,                   // id
 					info.Name(),             // filename
