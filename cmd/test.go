@@ -83,13 +83,19 @@ func readFile(path string) []Item {
 }
 
 func testFile(item Item) (bool, string) {
-	if !isExist(item.Fullpath) {
-		return false, "exist: false"
+	switch item.Except {
+	case "exist":
+		if !isExist(item.Fullpath) {
+			return false, "exist: false"
+		}
+		return true, "exist: true"
+	case "match":
+		if !isMatch(item.Fullpath, item.Sha1) {
+			return false, "match: false"
+		}
+		return true, "match: true"
 	}
-	if !isMatch(item.Fullpath, item.Sha1) {
-		return false, "match: false"
-	}
-	return true, "match: true"
+	return true, "nomatch"
 }
 
 func isExist(path string) bool {
