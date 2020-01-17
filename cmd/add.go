@@ -16,18 +16,18 @@ var addCmd = &cobra.Command{
 	Short: "add path",
 	Long:  `add files test configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("add called")
+		//fmt.Println("add called")
 
 		a, err := cmd.Flags().GetBool("all")
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Printf("-a = %v\n", a)
+		//fmt.Printf("-a = %v\n", a)
 
 		if len(args) > 0 {
-			for i, _ := range args {
-				fmt.Println(args[i])
-			}
+			//for i, _ := range args {
+			//	fmt.Println(args[i])
+			//}
 			seachFile(args[0], a)
 		}
 	},
@@ -58,12 +58,12 @@ func seachFile(path string, optA bool) {
 
 		if info.IsDir() {
 			if !optA && isDot(fp) {
-				fmt.Printf("skip path: %v\n", fp)
+				//fmt.Printf("skip path: %v\n", fp)
 				return filepath.SkipDir
 			}
 		} else {
 			if !optA && isDot(fp) {
-				fmt.Printf("skip file: %v\n", fp)
+				//fmt.Printf("skip file: %v\n", fp)
 			} else {
 				f.List = append(f.List, Item{
 					i + 1,                   // id
@@ -101,7 +101,7 @@ func isDot(path string) bool {
 		if pos == 0 && c != '.' {
 			return false
 		}
-		fmt.Printf("位置: %d 文字: %v\n", pos, string([]rune{c}))
+		//fmt.Printf("位置: %d 文字: %v\n", pos, string([]rune{c}))
 		if pos == 1 && c != '.' {
 			return true
 		}

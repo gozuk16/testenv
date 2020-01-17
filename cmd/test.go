@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -36,7 +37,7 @@ func testFiles(path string) {
 	if len(list) > 0 {
 		var pass, fail int
 		w := ansicolor.NewAnsiColorWriter(os.Stdout)
-		for _, l := range list {
+	for _, l := range list {
 			var result string
 			r, msg := testFile(l)
 			if r {
@@ -94,7 +95,13 @@ func testFile(item Item) (bool, string) {
 			return false, "match: false"
 		}
 		return true, "match: true"
+	case "newer":
+		if !isNewer(item.Fullpath, item.Modtime) {
+			return false, "newer: false"
+		}
+		return true, "newer: true"
 	}
+
 	return true, "nomatch"
 }
 
@@ -107,6 +114,18 @@ func isMatch(path string, except string) bool {
 	sha1 := getFileHash(path)
 	if except != sha1 {
 		//fmt.Printf("except: %v, given: %v\n", except, sha1)
+		return false
+	}
+	return true
+}
+
+func isNewer(path string, except time.Time) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+			return false
+	}
+	if except.Unix() > info.ModTime().Unix() {
+		//fmt.Printf("except: %v, given: %v\n", except, info.ModTime())
 		return false
 	}
 	return true
