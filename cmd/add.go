@@ -106,6 +106,7 @@ func isDot(path string) bool {
 			return true
 		}
 	}
+	//fmt.Printf("最後まで来た：%v\n", str)
 	return true
 }
 
