@@ -26,6 +26,7 @@ func TestIsDot(t *testing.T) {
 		//{path: "C:\\var\\test\\testfile", except: false, msg: "フルパスの通常ファイル(Windows)"},
 		//{path: "C:\\var\\test\\.", except: true, msg: "フルパスのカレントディレクトリ(Windows)"},
 		//{path: "C:\\var\\test\\.test", except: true, msg: "フルパスのドットファイル(Windows)"},
+		{path: "日本語𩸽", except: false, msg: "日本語ファイル(サロゲートペア入り)"},
 	}
 
 	for _, c := range cases {
