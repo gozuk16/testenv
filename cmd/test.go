@@ -37,7 +37,7 @@ func testFiles(path string) {
 	if len(list) > 0 {
 		var pass, fail int
 		w := ansicolor.NewAnsiColorWriter(os.Stdout)
-	for _, l := range list {
+		for _, l := range list {
 			var result string
 			r, msg := testFile(l)
 			if r {
@@ -90,6 +90,11 @@ func testFile(item Item) (bool, string) {
 			return false, "exist: false"
 		}
 		return true, "exist: true"
+	case "not_exist":
+		if isExist(item.Fullpath) {
+			return false, "not_exist: false"
+		}
+		return true, "not_exist: true"
 	case "match":
 		if !isMatch(item.Fullpath, item.Sha1) {
 			return false, "match: false"
@@ -122,7 +127,7 @@ func isMatch(path string, except string) bool {
 func isNewer(path string, except time.Time) bool {
 	info, err := os.Stat(path)
 	if err != nil {
-			return false
+		return false
 	}
 	if except.Unix() > info.ModTime().Unix() {
 		//fmt.Printf("except: %v, given: %v\n", except, info.ModTime())
