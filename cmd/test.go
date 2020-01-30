@@ -86,28 +86,36 @@ func readFile(path string) []Item {
 func testFile(item Item) (bool, string) {
 	switch item.Except {
 	case "exist":
+		s := formatTestResultMessage("exist")
 		if !isExist(item.Fullpath) {
-			return false, "exist: false"
+			return false, s + ": false"
 		}
-		return true, "exist: true"
+		return true, s + ": true "
 	case "not_exist":
+		s := formatTestResultMessage("not exist")
 		if isExist(item.Fullpath) {
-			return false, "not_exist: false"
+			return false, s + ": false"
 		}
-		return true, "not_exist: true"
+		return true, s + ": true "
 	case "match":
+		s := formatTestResultMessage("match")
 		if !isMatch(item.Fullpath, item.Sha1) {
-			return false, "match: false"
+			return true, s + ": false"
 		}
-		return true, "match: true"
+		return true, s + ": true "
 	case "newer":
+		s := formatTestResultMessage("newer")
 		if !isNewer(item.Fullpath, item.Modtime) {
-			return false, "newer: false"
+			return false, s + ": false"
 		}
-		return true, "newer: true"
+		return true, s + ": true "
 	}
 
-	return true, "nomatch"
+	return true, formatTestResultMessage("nomatch")
+}
+
+func formatTestResultMessage(msg string) string {
+	return fmt.Sprintf("%9v", msg)
 }
 
 func isExist(path string) bool {
