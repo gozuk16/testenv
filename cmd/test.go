@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/spf13/cobra"
 
@@ -33,9 +34,9 @@ var testCmd = &cobra.Command{
 }
 
 var overlayExtensions []string
+var maxPathThreshold int
 
 func testFiles(path string) {
-
 	baseDir, list := readFile(path)
 	if len(list) > 0 {
 		var pass, fail, warning int
@@ -68,8 +69,19 @@ func testFiles(path string) {
 					}
 				}
 			}
+
+			resMsg = formatTestResultMessage("max path") + ": warn"
+			if maxPathThreshold > 0 {
+				r, len := testMaxPath(l.Fullpath)
+				msg := fmt.Sprintf(" └─ path len:%-3d, over: %-3d", len, len-maxPathThreshold)
+				if !r {
+					result = fmt.Sprintf("%5v| @{y}%-16v@{|}| %v\n", "", resMsg, msg)
+					warning++
+					color.Fprintf(w, result)
+				}
+
+			}
 		}
-		//color.Fprintf(w, "\n@{g}PASS: %d@{|} / @{r}FAIL: %d@{|}\n", pass, fail)
 		color.Fprintf(w, "\n@{g}PASS: %d@{|} / @{r}FAIL: %d@{|} / @{y}WARNING: %d@{|}\n", pass, fail, warning)
 	}
 }
@@ -98,6 +110,8 @@ func readFile(path string) (string, []Item) {
 	fmt.Printf("Num: %d\n", f.Num)
 	overlayExtensions = f.WarningOverlay
 	fmt.Printf("WarningOverlay: %v\n", strings.Join(overlayExtensions, ","))
+	maxPathThreshold = f.WarningMaxPath
+	fmt.Printf("WarningMaxPath: %d\n", maxPathThreshold)
 	fmt.Printf("Message: %v\n", f.Message)
 	if len(f.List) > 0 {
 		return f.Title, f.List
@@ -207,21 +221,14 @@ func isOverlay(filename string, ext string, except string) bool {
 		}
 	}
 	return false
-	/*
-		filename := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
-		err := filepath.Walk(filepath.Dir(path), func(p string, info os.FileInfo, err error) error {
-			if !info.IsDir() {
-				if strings.Contains(info.Name(), filename) {
-					return nil
-				}
-			}
-			return nil
-		})
-		if err != nil {
-			log.Fatal(err)
-		}
-		return false
-	*/
+}
+
+func testMaxPath(path string) (bool, int) {
+	num := utf8.RuneCountInString(path)
+	if num > maxPathThreshold {
+		return false, num
+	}
+	return true, num
 }
 
 func init() {

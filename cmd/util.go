@@ -26,6 +26,7 @@ type File struct {
 	Title          string   `json:"title"`
 	Num            int      `json:"num"`
 	WarningOverlay []string `json:"warningOverlay"`
+	WarningMaxPath int      `json:"warningMaxPath"`
 	Message        string   `json:"message"`
 	List           []Item   `json:"list"`
 }
