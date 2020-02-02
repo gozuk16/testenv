@@ -45,6 +45,8 @@ func seachFile(path string, optA bool) {
 	}
 	f.Title = filepath.FromSlash(origin)
 	f.List = make([]Item, 0)
+	f.WarningOverlay = append(f.WarningOverlay, "jar")
+	f.WarningOverlay = append(f.WarningOverlay, "dll")
 	i := 0
 	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
 		fp, err := filepath.Abs(p)

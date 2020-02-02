@@ -23,10 +23,11 @@ type Item struct {
 }
 
 type File struct {
-	Title   string `json:"title"`
-	Num     int    `json:"num"`
-	Message string `json:"message"`
-	List    []Item `json:"list"`
+	Title          string   `json:"title"`
+	Num            int      `json:"num"`
+	WarningOverlay []string `json:"warningOverlay"`
+	Message        string   `json:"message"`
+	List           []Item   `json:"list"`
 }
 
 func getFileHash(path string) string {

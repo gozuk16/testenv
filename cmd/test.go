@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -31,30 +32,49 @@ var testCmd = &cobra.Command{
 	},
 }
 
+var overlayExtensions []string
+
 func testFiles(path string) {
 
-	list := readFile(path)
+	baseDir, list := readFile(path)
 	if len(list) > 0 {
-		var pass, fail int
+		var pass, fail, warning int
 		w := ansicolor.NewAnsiColorWriter(os.Stdout)
 		for _, l := range list {
 			var result string
 			r, msg := testFile(l)
 			if r {
-				result = fmt.Sprintf("%5d| @{g}%-12v@{|}| %v\n", l.Id, msg, l.Fullpath)
+				result = fmt.Sprintf("%5d| @{g}%-16v@{|}| %v\n", l.Id, msg, l.Fullpath)
 				pass++
 			} else {
-				result = fmt.Sprintf("%5d| @{r}%-12v@{|}| %v\n", l.Id, msg, l.Fullpath)
+				result = fmt.Sprintf("%5d| @{r}%-16v@{|}| %v\n", l.Id, msg, l.Fullpath)
 				fail++
 			}
 			color.Fprintf(w, result)
-		}
-		color.Fprintf(w, "\n@{g}PASS: %d@{|} / @{r}FAIL: %d@{|}\n", pass, fail)
-	}
 
+			resMsg := formatTestResultMessage("overlay") + ": warn"
+			if shouldOverlayTest(l.Filename) {
+				msgs := testOverlay(baseDir, l)
+				if msgs != nil {
+					for i, msg := range msgs {
+						if i == len(msgs)-1 {
+							msg = " └─ " + msg
+						} else {
+							msg = " ├─ " + msg
+						}
+						result = fmt.Sprintf("%5v| @{y}%-16v@{|}| %v\n", "", resMsg, msg)
+						warning++
+						color.Fprintf(w, result)
+					}
+				}
+			}
+		}
+		//color.Fprintf(w, "\n@{g}PASS: %d@{|} / @{r}FAIL: %d@{|}\n", pass, fail)
+		color.Fprintf(w, "\n@{g}PASS: %d@{|} / @{r}FAIL: %d@{|} / @{y}WARNING: %d@{|}\n", pass, fail, warning)
+	}
 }
 
-func readFile(path string) []Item {
+func readFile(path string) (string, []Item) {
 	p, err := filepath.Abs(path)
 	if err != nil {
 		log.Fatal(err)
@@ -76,11 +96,13 @@ func readFile(path string) []Item {
 
 	fmt.Printf("\nTitle: %v\n", f.Title)
 	fmt.Printf("Num: %d\n", f.Num)
+	overlayExtensions = f.WarningOverlay
+	fmt.Printf("WarningOverlay: %v\n", strings.Join(overlayExtensions, ","))
 	fmt.Printf("Message: %v\n", f.Message)
 	if len(f.List) > 0 {
-		return f.List
+		return f.Title, f.List
 	}
-	return nil
+	return "", nil
 }
 
 func testFile(item Item) (bool, string) {
@@ -100,7 +122,7 @@ func testFile(item Item) (bool, string) {
 	case "match":
 		s := formatTestResultMessage("match")
 		if !isMatch(item.Fullpath, item.Sha1) {
-			return true, s + ": false"
+			return false, s + ": false"
 		}
 		return true, s + ": true "
 	case "newer":
@@ -142,6 +164,64 @@ func isNewer(path string, except time.Time) bool {
 		return false
 	}
 	return true
+}
+
+func shouldOverlayTest(filename string) bool {
+	for _, ext := range overlayExtensions {
+		if ext == strings.TrimLeft(filepath.Ext(filename), ".") {
+			return true
+		}
+	}
+	return false
+}
+
+func testOverlay(baseDir string, item Item) []string {
+	var s []string
+	path := item.Fullpath
+	except := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
+	ext := strings.TrimLeft(filepath.Ext(path), ".")
+	err := filepath.Walk(filepath.Dir(baseDir), func(p string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			if info.Name() != except+"."+ext {
+				if isOverlay(info.Name(), ext, except) {
+					s = append(s, p)
+				}
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	if len(s) > 0 {
+		return s
+	} else {
+		return nil
+	}
+}
+
+func isOverlay(filename string, ext string, except string) bool {
+	if strings.TrimLeft(filepath.Ext(filename), ".") == ext {
+		if strings.Contains(filename, except) {
+			return true
+		}
+	}
+	return false
+	/*
+		filename := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
+		err := filepath.Walk(filepath.Dir(path), func(p string, info os.FileInfo, err error) error {
+			if !info.IsDir() {
+				if strings.Contains(info.Name(), filename) {
+					return nil
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		return false
+	*/
 }
 
 func init() {
