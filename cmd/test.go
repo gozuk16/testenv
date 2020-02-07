@@ -41,6 +41,7 @@ func testFiles(path string) {
 	if len(list) > 0 {
 		startTime := time.Now()
 		var pass, fail, warning int
+		targetFiles := getOverlayTargetFiles(baseDir)
 		w := ansicolor.NewAnsiColorWriter(os.Stdout)
 		for _, l := range list {
 			var result string
@@ -56,7 +57,7 @@ func testFiles(path string) {
 
 			resMsg := formatTestResultMessage("overlay") + ": warn"
 			if shouldOverlayTest(l.Filename) {
-				msgs := testOverlay(baseDir, l)
+				msgs := testOverlay(targetFiles, l)
 				if msgs != nil {
 					for i, msg := range msgs {
 						if i == len(msgs)-1 {
@@ -192,23 +193,35 @@ func shouldOverlayTest(filename string) bool {
 	return false
 }
 
-func testOverlay(baseDir string, item Item) []string {
+func getOverlayTargetFiles(baseDir string) []string {
 	var s []string
-	path := item.Fullpath
-	except := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
-	ext := strings.TrimLeft(filepath.Ext(path), ".")
 	err := filepath.Walk(filepath.Clean(baseDir), func(p string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
-			if info.Name() != except+"."+ext {
-				if isOverlay(info.Name(), ext, except) {
-					s = append(s, p)
-				}
-			}
+			s = append(s, p)
 		}
 		return nil
 	})
 	if err != nil {
 		log.Fatal(err)
+	}
+	if len(s) > 0 {
+		return s
+	} else {
+		return nil
+	}
+}
+
+func testOverlay(targetFiles []string, item Item) []string {
+	var s []string
+	path := item.Fullpath
+	except := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
+	ext := strings.TrimLeft(filepath.Ext(path), ".")
+	for _, file := range targetFiles {
+		if file != except+"."+ext {
+			if isOverlay(file, ext, except) {
+				s = append(s, file)
+			}
+		}
 	}
 	if len(s) > 0 {
 		return s
