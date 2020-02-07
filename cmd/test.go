@@ -194,7 +194,7 @@ func testOverlay(baseDir string, item Item) []string {
 	path := item.Fullpath
 	except := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
 	ext := strings.TrimLeft(filepath.Ext(path), ".")
-	err := filepath.Walk(filepath.Dir(baseDir), func(p string, info os.FileInfo, err error) error {
+	err := filepath.Walk(filepath.Clean(baseDir), func(p string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
 			if info.Name() != except+"."+ext {
 				if isOverlay(info.Name(), ext, except) {

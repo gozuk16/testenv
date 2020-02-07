@@ -40,7 +40,8 @@ func getFileHash(path string) string {
 
 	hash := sha1.New()
 	if _, err := io.Copy(hash, file); err != nil {
-		log.Fatal(err)
+		//log.Fatal(err)
+		log.Println(err)
 	}
 	sum := hash.Sum(nil)
 
