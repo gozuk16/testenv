@@ -39,6 +39,7 @@ var maxPathThreshold int
 func testFiles(path string) {
 	baseDir, list := readFile(path)
 	if len(list) > 0 {
+		startTime := time.Now()
 		var pass, fail, warning int
 		w := ansicolor.NewAnsiColorWriter(os.Stdout)
 		for _, l := range list {
@@ -83,6 +84,8 @@ func testFiles(path string) {
 			}
 		}
 		color.Fprintf(w, "\n@{g}PASS: %d@{|} / @{r}FAIL: %d@{|} / @{y}WARNING: %d@{|}\n", pass, fail, warning)
+		endTime := time.Now()
+		fmt.Printf("elapsed time: %fs\n", (endTime.Sub(startTime)).Seconds())
 	}
 }
 
