@@ -20,15 +20,19 @@ import (
 // testCmd represents the add command
 var testCmd = &cobra.Command{
 	Use:   "test",
-	Short: "test",
-	Long:  `test`,
+	Short: "test testfile.json",
+	Long:  `test execute`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("test called")
+		v, err := cmd.Flags().GetBool("verbose")
+		if err != nil {
+			fmt.Println(err)
+		}
+
 		if len(args) > 0 {
-			for i, _ := range args {
-				fmt.Println(args[i])
-			}
-			testFiles(args[0])
+			//for i, _ := range args {
+			//	fmt.Println(args[i])
+			//}
+			testFiles(args[0], v)
 		}
 	},
 }
@@ -36,50 +40,62 @@ var testCmd = &cobra.Command{
 var overlayExtensions []string
 var maxPathThreshold int
 
-func testFiles(path string) {
+func testFiles(path string, optV bool) {
 	baseDir, list := readFile(path)
 	if len(list) > 0 {
 		startTime := time.Now()
 		var pass, fail, warning int
+		var id int
+		var fullpath string
+		var hasOverlay bool
 		targetFiles := getOverlayTargetFiles(baseDir)
 		w := ansicolor.NewAnsiColorWriter(os.Stdout)
 		for _, l := range list {
-			var result string
-			r, msg := testFile(l)
-			if r {
-				result = fmt.Sprintf("%5d| @{g}%-16v@{|}| %v\n", l.Id, msg, l.Fullpath)
+			hasOverlay = false
+			testResult, msg := testFile(l)
+			if testResult {
+				if optV {
+					color.Fprintf(w, "%5d| @{g}%-16v@{|}| %v\n", l.Id, msg, l.Fullpath)
+				} else {
+					id = l.Id
+					fullpath = l.Fullpath
+				}
 				pass++
 			} else {
-				result = fmt.Sprintf("%5d| @{r}%-16v@{|}| %v\n", l.Id, msg, l.Fullpath)
+				color.Fprintf(w, "%5d| @{r}%-16v@{|}| %v\n", l.Id, msg, l.Fullpath)
 				fail++
 			}
-			color.Fprintf(w, result)
 
 			resMsg := formatTestResultMessage("overlay") + ": warn"
 			if shouldOverlayTest(l.Filename) {
 				msgs := testOverlay(targetFiles, l)
 				if msgs != nil {
-					for i, msg := range msgs {
+					if !optV && testResult {
+						color.Fprintf(w, "%5d| @{g}%-16v@{|}| %v\n", id, msg, fullpath)
+						hasOverlay = true
+					}
+					for i, m := range msgs {
 						if i == len(msgs)-1 {
-							msg = " └─ " + msg
+							m = " └─ " + m
 						} else {
-							msg = " ├─ " + msg
+							m = " ├─ " + m
 						}
-						result = fmt.Sprintf("%5v| @{y}%-16v@{|}| %v\n", "", resMsg, msg)
+						color.Fprintf(w, "%5v| @{y}%-16v@{|}| %v\n", "", resMsg, m)
 						warning++
-						color.Fprintf(w, result)
 					}
 				}
 			}
 
 			resMsg = formatTestResultMessage("max path") + ": warn"
 			if maxPathThreshold > 0 {
-				r, len := testMaxPath(l.Fullpath)
-				msg := fmt.Sprintf(" └─ path len:%-3d, over: %-3d", len, len-maxPathThreshold)
+				r, size := testMaxPath(l.Fullpath)
 				if !r {
-					result = fmt.Sprintf("%5v| @{y}%-16v@{|}| %v\n", "", resMsg, msg)
+					if !optV && testResult && !hasOverlay {
+						color.Fprintf(w, "%5d| @{g}%-16v@{|}| %v\n", id, msg, fullpath)
+					}
+					m := fmt.Sprintf(" └─ path len:%-3d, over: %-3d", size, size-maxPathThreshold)
+					color.Fprintf(w, "%5v| @{y}%-16v@{|}| %v\n", "", resMsg, m)
 					warning++
-					color.Fprintf(w, result)
 				}
 
 			}
@@ -250,13 +266,5 @@ func testMaxPath(path string) (bool, int) {
 func init() {
 	RootCmd.AddCommand(testCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// testCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// testCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	testCmd.Flags().BoolP("verbose", "v", false, "Be verbose when testing, showing them as they are tested.")
 }

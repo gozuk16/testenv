@@ -13,11 +13,9 @@ import (
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "add path",
+	Short: "add base_dir",
 	Long:  `add files test configuration`,
 	Run: func(cmd *cobra.Command, args []string) {
-		//fmt.Println("add called")
-
 		a, err := cmd.Flags().GetBool("all")
 		if err != nil {
 			fmt.Println(err)
@@ -28,12 +26,12 @@ var addCmd = &cobra.Command{
 			//for i, _ := range args {
 			//	fmt.Println(args[i])
 			//}
-			seachFile(args[0], a)
+			searchFile(args[0], a)
 		}
 	},
 }
 
-func seachFile(path string, optA bool) {
+func searchFile(path string, optA bool) {
 	var f = File{}
 	origin, err := filepath.Abs(path)
 	if err != nil {
