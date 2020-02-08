@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	//"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
 	"io"
@@ -23,7 +24,7 @@ type Item struct {
 }
 
 type File struct {
-	Title          string   `json:"title"`
+	BaseDir        string   `json:"baseDir"`
 	Num            int      `json:"num"`
 	WarningOverlay []string `json:"warningOverlay"`
 	WarningMaxPath int      `json:"warningMaxPath"`
@@ -39,6 +40,7 @@ func getFileHash(path string) string {
 	defer file.Close()
 
 	hash := sha1.New()
+	//hash := md5.New()
 	if _, err := io.Copy(hash, file); err != nil {
 		//log.Fatal(err)
 		log.Println(err)

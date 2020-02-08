@@ -43,7 +43,7 @@ func seachFile(path string, optA bool) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	f.Title = filepath.FromSlash(origin)
+	f.BaseDir = filepath.FromSlash(origin)
 	f.List = make([]Item, 0)
 	f.WarningOverlay = append(f.WarningOverlay, "jar")
 	f.WarningOverlay = append(f.WarningOverlay, "dll")

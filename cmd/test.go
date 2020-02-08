@@ -110,7 +110,7 @@ func readFile(path string) (string, []Item) {
 	var f = File{}
 	json.Unmarshal(raw, &f)
 
-	fmt.Printf("\nTitle: %v\n", f.Title)
+	fmt.Printf("\nBaseDir: %v\n", f.BaseDir)
 	fmt.Printf("Num: %d\n", f.Num)
 	overlayExtensions = f.WarningOverlay
 	fmt.Printf("WarningOverlay: %v\n", strings.Join(overlayExtensions, ","))
@@ -118,7 +118,7 @@ func readFile(path string) (string, []Item) {
 	fmt.Printf("WarningMaxPath: %d\n", maxPathThreshold)
 	fmt.Printf("Message: %v\n", f.Message)
 	if len(f.List) > 0 {
-		return f.Title, f.List
+		return f.BaseDir, f.List
 	}
 	return "", nil
 }
