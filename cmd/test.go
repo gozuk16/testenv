@@ -81,8 +81,8 @@ func testFiles(path string, optV bool) {
 							m = " ├─ " + m
 						}
 						color.Fprintf(w, "%5v| @{y}%-16v@{|}| %v\n", "", resMsg, m)
-						warning++
 					}
+					warning++
 				}
 			}
 
@@ -233,7 +233,8 @@ func testOverlay(targetFiles []string, item Item) []string {
 	except := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
 	ext := strings.TrimLeft(filepath.Ext(path), ".")
 	for _, file := range targetFiles {
-		if file != except+"."+ext {
+		f, _ := filepath.Abs(file)
+		if path != f {
 			if isOverlay(file, ext, except) {
 				s = append(s, file)
 			}
@@ -247,8 +248,9 @@ func testOverlay(targetFiles []string, item Item) []string {
 }
 
 func isOverlay(filename string, ext string, except string) bool {
-	if strings.TrimLeft(filepath.Ext(filename), ".") == ext {
-		if strings.Contains(filename, except) {
+	shortFilename := filepath.Base(filename)
+	if strings.TrimLeft(filepath.Ext(shortFilename), ".") == ext {
+		if strings.Contains(shortFilename, except) {
 			return true
 		}
 	}
