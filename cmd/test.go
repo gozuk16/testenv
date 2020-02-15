@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -248,9 +249,37 @@ func testOverlay(targetFiles []string, item Item) []string {
 }
 
 func isOverlay(filename string, ext string, except string) bool {
+	separator := [...]string{"-", "_", "."}
 	shortFilename := filepath.Base(filename)
-	if strings.TrimLeft(filepath.Ext(shortFilename), ".") == ext {
-		if strings.Contains(shortFilename, except) {
+	if strings.HasSuffix(shortFilename, "."+ext) {
+		target := strings.TrimRight(shortFilename, "."+ext)
+
+		// 先頭が"_"ならチェック対象に含める
+		if target[:1] == "_" {
+			target = strings.TrimLeft(target, "_")
+		}
+		// 先頭がチェック対象のファイル名と一致ならチェック対象に含める
+		if strings.HasPrefix(target, except) {
+			s := strings.TrimLeft(target, except)
+			// 完全一致ならtrue、後ろになにかついてるなら引き続きチェック
+			if s != "" {
+				//c1 := string([]rune(s)[:1])
+				//c2 := string([]rune(s)[1:2])
+				c1 := s[:1]
+				c2 := s[1:2]
+				for _, sp := range separator {
+					// 1文字目がセパレーターなら引き続きチェック
+					if c1 == sp {
+						// 2文字目が数字ならtrue
+						_, err := strconv.Atoi(c2)
+						if err != nil {
+							return false
+						}
+						return true
+					}
+				}
+				return false
+			}
 			return true
 		}
 	}
