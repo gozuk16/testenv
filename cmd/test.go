@@ -24,7 +24,11 @@ var testCmd = &cobra.Command{
 	Short: "test testfile.json",
 	Long:  `test execute`,
 	Run: func(cmd *cobra.Command, args []string) {
-		v, err := cmd.Flags().GetBool("verbose")
+		optE, err := cmd.Flags().GetBool("expand")
+		if err != nil {
+			fmt.Println(err)
+		}
+		optV, err := cmd.Flags().GetBool("verbose")
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -33,7 +37,7 @@ var testCmd = &cobra.Command{
 			//for i, _ := range args {
 			//	fmt.Println(args[i])
 			//}
-			testFiles(args[0], v)
+			testFiles(args[0], optE, optV)
 		}
 	},
 }
@@ -41,7 +45,7 @@ var testCmd = &cobra.Command{
 var overlayExtensions []string
 var maxPathThreshold int
 
-func testFiles(path string, optV bool) {
+func testFiles(path string, optE bool, optV bool) {
 	baseDir, list := readFile(path)
 	if len(list) > 0 {
 		startTime := time.Now()
@@ -69,7 +73,7 @@ func testFiles(path string, optV bool) {
 
 			resMsg := formatTestResultMessage("overlay") + ": warn"
 			if shouldOverlayTest(l.Filename) {
-				msgs := testOverlay(targetFiles, l)
+				msgs := testOverlay(baseDir, targetFiles, l, optE)
 				if msgs != nil {
 					if !optV && testResult {
 						color.Fprintf(w, "%5d| @{g}%-16v@{|}| %v\n", id, msg, fullpath)
@@ -228,19 +232,30 @@ func getOverlayTargetFiles(baseDir string) []string {
 	}
 }
 
-func testOverlay(targetFiles []string, item Item) []string {
+func testOverlay(baseDir string, targetFiles []string, item Item, optE bool) []string {
 	var s []string
-	path := item.Fullpath
-	except := filepath.Base(path[:len(path)-len(filepath.Ext(path))])
-	ext := strings.TrimLeft(filepath.Ext(path), ".")
+	path := filepath.Dir(item.Fullpath)
+	filename := item.Filename
+	except := filepath.Base(filename[:len(filename)-len(filepath.Ext(filename))])
+	ext := strings.TrimLeft(filepath.Ext(filename), ".")
+
 	for _, file := range targetFiles {
 		f, _ := filepath.Abs(file)
-		if path != f {
+		if !optE {
+			if filepath.Dir(f) != path {
+				continue
+			}
+		}
+		if item.Fullpath != f {
 			if isOverlay(file, ext, except) {
+				if strings.HasPrefix(file, baseDir) {
+					file = strings.TrimPrefix(file, baseDir+filepath.FromSlash("/"))
+				}
 				s = append(s, file)
 			}
 		}
 	}
+
 	if len(s) > 0 {
 		return s
 	} else {
@@ -302,4 +317,5 @@ func init() {
 	RootCmd.AddCommand(testCmd)
 
 	testCmd.Flags().BoolP("verbose", "v", false, "Be verbose when testing, showing them as they are tested.")
+	testCmd.Flags().BoolP("expand", "e", false, "Be expand when checking for duplicates, include other directories")
 }
