@@ -265,8 +265,12 @@ func isOverlay(filename string, ext string, except string) bool {
 			if s != "" {
 				//c1 := string([]rune(s)[:1])
 				//c2 := string([]rune(s)[1:2])
+				// 対象はAscii領域でUTF-8の2Byte目にはこの領域が来ることはないので高速なByteでチェックで良い
 				c1 := s[:1]
-				c2 := s[1:2]
+				var c2 string = ""
+				if len(s) > 1 {
+					c2 = s[1:2]
+				}
 				for _, sp := range separator {
 					// 1文字目がセパレーターなら引き続きチェック
 					if c1 == sp {
