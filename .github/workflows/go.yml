@@ -6,7 +6,7 @@ on:
   pull_request:
 jobs:
   lint:
-    name Lint check
+    name: Lint check
     runs-on: ubuntu-latest
 
     steps:
