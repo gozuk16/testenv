@@ -45,7 +45,7 @@ jobs:
 
     - name: Running go tests
       run: |
-        go get -u .
+        go get -u github.com/gozuk16/gret
         go test -v ./cmd/...
   build:
     name: Build
