@@ -25,6 +25,7 @@ jobs:
         GO111MODULE: off
       run: |
         go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+        ls -R ${GOPATH}
         ${GOPATH}/bin/golangci-lint version
         ${GOPATH}/bin/golangci-lint run --tests --disable-all --enable=goimports --enable=golint --enable=govet --enable=errcheck --enable=staticcheck ./...
   test:
