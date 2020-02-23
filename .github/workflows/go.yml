@@ -26,7 +26,6 @@ jobs:
       run: |
         go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
         ${GOPATH}/bin/golangci-lint --version
-        golangci-lint --version
         ${GOPATH}/bin/golangci-lint run --tests --disable-all --enable=goimports --enable=golint --enable=govet --enable=errcheck --enable=staticcheck
   test:
     name: Test on ${{ matrix.os }}
