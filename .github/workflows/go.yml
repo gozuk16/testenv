@@ -25,9 +25,8 @@ jobs:
         GO111MODULE: off
       run: |
         go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
-        env
         ${GOPATH}/bin/golangci-lint version
-        ${GOPATH}/bin/golangci-lint run --tests --disable-all --enable=goimports --enable=golint --enable=govet --enable=errcheck --enable=staticcheck ./gret/gret/...
+        ${GOPATH}/bin/golangci-lint run --tests --disable-all --enable=goimports --enable=golint --enable=govet --enable=errcheck --enable=staticcheck ${GITHUB_WORKSPACE}/...
   test:
     name: Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
