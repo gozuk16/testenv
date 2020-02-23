@@ -25,8 +25,8 @@ jobs:
         GOPATH: /home/runner/work/
       run: |
         go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
-        ${GOPATH}/bin/golangci-lint --version
-        ${GOPATH}/bin/golangci-lint run --tests --disable-all --enable=goimports --enable=golint --enable=govet --enable=errcheck --enable=staticcheck
+        ${GOPATH}/bin/golangci-lint version
+        ${GOPATH}/bin/golangci-lint run --tests --disable-all --enable=goimports --enable=golint --enable=govet --enable=errcheck --enable=staticcheck ./...
   test:
     name: Test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
