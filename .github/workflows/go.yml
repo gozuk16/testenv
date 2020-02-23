@@ -22,7 +22,7 @@ jobs:
     - name: Running golangci-lint
       env:
         GOPATH: /home/runner/work
-        GO111MODULE: off
+        GO111MODULE: on
       run: |
         go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
         ${GOPATH}/bin/golangci-lint version
