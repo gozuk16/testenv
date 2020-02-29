@@ -5,22 +5,36 @@ import (
 	"testing"
 )
 
-func TestIsDot(t *testing.T) {
-	type TestCase struct {
-		path   string
-		except bool
-		msg    string
-	}
-	cases := []TestCase{}
+type TestCase struct {
+	path   string
+	except bool
+	msg    string
+}
 
+func TestIsDot(t *testing.T) {
+
+	cases := []TestCase{}
+	setDotTestCase(&cases)
+
+	for _, c := range cases {
+		t.Run(c.msg, func(t *testing.T) {
+			result := isDot(c.path)
+			if result != c.except {
+				t.Error(c.path)
+			}
+		})
+	}
+}
+
+func setDotTestCase(cases *[]TestCase) {
 	if runtime.GOOS == "windows" {
-		cases = []TestCase{
+		*cases = []TestCase{
 			{path: "C:\\var\\test\\testfile", except: false, msg: "フルパスの通常ファイル(Windows)"},
 			{path: "C:\\var\\test\\.", except: true, msg: "フルパスのカレントディレクトリ(Windows)"},
 			{path: "C:\\var\\test\\.test", except: true, msg: "フルパスのドットファイル(Windows)"},
 		}
 	} else {
-		cases = []TestCase{
+		*cases = []TestCase{
 			{path: ".", except: true, msg: "カレントディレクトリ(相対)"},
 			{path: "..", except: true, msg: "上位ディレクトリ(相対)"},
 			{path: "testfile", except: false, msg: "通常ファイル(相対)"},
@@ -39,14 +53,5 @@ func TestIsDot(t *testing.T) {
 			//{path: "C:\\var\\test\\.test", except: true, msg: "フルパスのドットファイル(Windows)"},
 			{path: "日本語𩸽", except: false, msg: "日本語ファイル(サロゲートペア入り)"},
 		}
-	}
-
-	for _, c := range cases {
-		t.Run(c.msg, func(t *testing.T) {
-			result := isDot(c.path)
-			if result != c.except {
-				t.Error(c.path)
-			}
-		})
 	}
 }

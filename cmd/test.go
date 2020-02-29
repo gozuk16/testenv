@@ -60,14 +60,14 @@ func testFiles(path string, optE bool, optV bool) {
 			testResult, msg := testFile(l)
 			if testResult {
 				if optV {
-					color.Fprintf(w, "%5d| @{g}%-16v@{|}| %v\n", l.Id, msg, l.Fullpath)
+					color.Fprintf(w, "%5d| @{g}%-16v@{|}| %v\n", l.ID, msg, l.Fullpath)
 				} else {
-					id = l.Id
+					id = l.ID
 					fullpath = l.Fullpath
 				}
 				pass++
 			} else {
-				color.Fprintf(w, "%5d| @{r}%-16v@{|}| %v\n", l.Id, msg, l.Fullpath)
+				color.Fprintf(w, "%5d| @{r}%-16v@{|}| %v\n", l.ID, msg, l.Fullpath)
 				fail++
 			}
 
@@ -129,7 +129,9 @@ func readFile(path string) (string, []Item) {
 	}
 
 	var f = File{}
-	json.Unmarshal(raw, &f)
+	if err := json.Unmarshal(raw, &f); err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Printf("\nBaseDir: %v\n", f.BaseDir)
 	fmt.Printf("Num: %d\n", f.Num)
@@ -227,9 +229,8 @@ func getOverlayTargetFiles(baseDir string) []string {
 	}
 	if len(s) > 0 {
 		return s
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func testOverlay(baseDir string, targetFiles []string, item Item, optE bool) []string {
@@ -258,9 +259,8 @@ func testOverlay(baseDir string, targetFiles []string, item Item, optE bool) []s
 
 	if len(s) > 0 {
 		return s
-	} else {
-		return nil
 	}
+	return nil
 }
 
 func isOverlay(filename string, ext string, except string) bool {

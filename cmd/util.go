@@ -11,7 +11,7 @@ import (
 )
 
 type Item struct {
-	Id         int         `json:"id"`
+	ID         int         `json:"id"`
 	Filename   string      `json:"filename"`
 	Fullpath   string      `json:"fullpath"`
 	Modtime    time.Time   `json:"modtime"`
