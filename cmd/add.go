@@ -38,9 +38,6 @@ func searchFile(path string, optA bool) {
 		log.Fatal(err)
 	}
 	origin = filepath.Clean(origin)
-	if err != nil {
-		log.Fatal(err)
-	}
 	f.BaseDir = filepath.FromSlash(origin)
 	f.List = make([]Item, 0)
 	f.WarningOverlay = append(f.WarningOverlay, "jar")
@@ -48,14 +45,11 @@ func searchFile(path string, optA bool) {
 	f.WarningMaxPath = 220
 	i := 0
 	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
-		fp, err := filepath.Abs(p)
-		if err != nil {
-			log.Fatal(err)
+		fp, absErr := filepath.Abs(p)
+		if absErr != nil {
+			log.Fatal(absErr)
 		}
 		fp = filepath.Clean(fp)
-		if err != nil {
-			log.Fatal(err)
-		}
 
 		if info.IsDir() {
 			if !optA && isDot(fp) {
