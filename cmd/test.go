@@ -118,10 +118,6 @@ func readFile(path string) (string, []Item) {
 		os.Exit(1)
 	}
 	p = filepath.Clean(p)
-	if err != nil {
-		log.Fatal(err)
-		os.Exit(1)
-	}
 	raw, err := ioutil.ReadFile(p)
 	if err != nil {
 		log.Fatal(err)
