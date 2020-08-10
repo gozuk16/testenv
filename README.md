@@ -1,11 +1,12 @@
 # gret
 Resource and Environment testing tool implemented with Go.
 
-Go実装のファイルテストツール
+Go実装の環境テストツール
 
-環境テストもできるようにしたい
 
-主にWindowsでファイルの構成と環境変数のテストをしたいけど、Serverspecを使うためにRuby入れたりしたくないし、GossはWindows対応してないっぽいので簡単なものを作り始めました。（いつ出来るものやら・・・）
+
+主にWindowsでファイルの構成と環境変数のテストをしたいけど、Serverspecを使うためにRuby入れたりしたくないし、GossはWindows対応してないっぽいので簡単なものを作り始めました。（いつ出来るものやら・・・）  
+とりあえず、ローカルで動けば自分としては全く問題ないので、リモート実行は実装する予定はありません。
 
 ## Usage
 サブコマンドが2つあります。
@@ -27,13 +28,13 @@ $ gret add directory
 $ gret add -a directory
 ```
  
-### test
+### validate
 ```
-$ gret test testfile
+$ gret validate testfile
 ```
 
 現状ではファイルについてテスト可能です。  
-test対象を記述したjsonファイルを指定してください。
+validate対象を記述したjsonファイルを指定してください。
 
 exceptに指定できるキーワードは、`match`, `exist`, `not_exist`です。  
 
@@ -46,8 +47,8 @@ exceptに指定できるキーワードは、`match`, `exist`, `not_exist`です
 `warningOverlay`, `warningMaxPath` は記述されているすべてのファイルに掛かります。  
 `warningOverlay` は指定された拡張子について類似するファイルがないか走査します。  
 デフォルトでは、`jar`, `dll`が指定されています。
-testを実行すると同じディレクトリの中にfilenameの後ろにセパレーター("\_", "-", ".")+数字のファイルがないかチェックします。  
-`-e` をつけてtestを実行するとbaseDir以下のディレクトリを再帰的に全てチェックします。
+validateを実行すると同じディレクトリの中にfilenameの後ろにセパレーター("\_", "-", ".")+数字のファイルがないかチェックします。  
+`-e` をつけてvalidateを実行するとbaseDir以下のディレクトリを再帰的に全てチェックします。
 
 `warningOverlay` は記述されているファイルの絶対パスの文字数をチェックします。  
 Windowsでは259文字以上のパスでアプリによって動作がおかしくなる可能性があります。  

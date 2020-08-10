@@ -14,7 +14,7 @@ import (
 var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "add base_dir",
-	Long:  `add files test configuration`,
+	Long:  `carete configuration json`,
 	Run: func(cmd *cobra.Command, args []string) {
 		a, err := cmd.Flags().GetBool("all")
 		if err != nil {

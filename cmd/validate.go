@@ -18,11 +18,11 @@ import (
 	"github.com/wsxiaoys/terminal/color"
 )
 
-// testCmd represents the add command
-var testCmd = &cobra.Command{
-	Use:   "test",
-	Short: "test testfile.json",
-	Long:  `test execute`,
+// validateCmd represents the add command
+var validateCmd = &cobra.Command{
+	Use:   "validate",
+	Short: "validate config.json",
+	Long:  `execute validate`,
 	Run: func(cmd *cobra.Command, args []string) {
 		optE, err := cmd.Flags().GetBool("expand")
 		if err != nil {
@@ -37,7 +37,7 @@ var testCmd = &cobra.Command{
 			//for i, _ := range args {
 			//	fmt.Println(args[i])
 			//}
-			testFiles(args[0], optE, optV)
+			validateFiles(args[0], optE, optV)
 		}
 	},
 }
@@ -45,7 +45,7 @@ var testCmd = &cobra.Command{
 var overlayExtensions []string
 var maxPathThreshold int
 
-func testFiles(path string, optE bool, optV bool) {
+func validateFiles(path string, optE bool, optV bool) {
 	baseDir, list := readFile(path)
 	if len(list) > 0 {
 		startTime := time.Now()
@@ -57,8 +57,8 @@ func testFiles(path string, optE bool, optV bool) {
 		w := ansicolor.NewAnsiColorWriter(os.Stdout)
 		for _, l := range list {
 			hasOverlay = false
-			testResult, msg := testFile(l)
-			if testResult {
+			validateResult, msg := validateFile(l)
+			if validateResult {
 				if optV {
 					color.Fprintf(w, "%5d| @{g}%-16v@{|}| %v\n", l.ID, msg, l.Fullpath)
 				} else {
@@ -71,11 +71,11 @@ func testFiles(path string, optE bool, optV bool) {
 				fail++
 			}
 
-			resMsg := formatTestResultMessage("overlay") + ": warn"
-			if shouldOverlayTest(l.Filename) {
-				msgs := testOverlay(baseDir, targetFiles, l, optE)
+			resMsg := formatResultMessage("overlay") + ": warn"
+			if shouldOverlay(l.Filename) {
+				msgs := overlay(baseDir, targetFiles, l, optE)
 				if msgs != nil {
-					if !optV && testResult {
+					if !optV && validateResult {
 						color.Fprintf(w, "%5d| @{g}%-16v@{|}| %v\n", id, msg, fullpath)
 						hasOverlay = true
 					}
@@ -91,11 +91,11 @@ func testFiles(path string, optE bool, optV bool) {
 				}
 			}
 
-			resMsg = formatTestResultMessage("max path") + ": warn"
+			resMsg = formatResultMessage("max path") + ": warn"
 			if maxPathThreshold > 0 {
-				r, size := testMaxPath(l.Fullpath)
+				r, size := maxPath(l.Fullpath)
 				if !r {
-					if !optV && testResult && !hasOverlay {
+					if !optV && validateResult && !hasOverlay {
 						color.Fprintf(w, "%5d| @{g}%-16v@{|}| %v\n", id, msg, fullpath)
 					}
 					m := fmt.Sprintf(" └─ path len:%-3d, over: %-3d", size, size-maxPathThreshold)
@@ -142,38 +142,38 @@ func readFile(path string) (string, []Item) {
 	return "", nil
 }
 
-func testFile(item Item) (bool, string) {
+func validateFile(item Item) (bool, string) {
 	switch item.Except {
 	case "exist":
-		s := formatTestResultMessage("exist")
+		s := formatResultMessage("exist")
 		if !isExist(item.Fullpath) {
 			return false, s + ": false"
 		}
 		return true, s + ": true "
 	case "not_exist":
-		s := formatTestResultMessage("not exist")
+		s := formatResultMessage("not exist")
 		if isExist(item.Fullpath) {
 			return false, s + ": false"
 		}
 		return true, s + ": true "
 	case "match":
-		s := formatTestResultMessage("match")
+		s := formatResultMessage("match")
 		if !isMatch(item.Fullpath, item.Sha1) {
 			return false, s + ": false"
 		}
 		return true, s + ": true "
 	case "newer":
-		s := formatTestResultMessage("newer")
+		s := formatResultMessage("newer")
 		if !isNewer(item.Fullpath, item.Modtime) {
 			return false, s + ": false"
 		}
 		return true, s + ": true "
 	}
 
-	return true, formatTestResultMessage("nomatch")
+	return true, formatResultMessage("nomatch")
 }
 
-func formatTestResultMessage(msg string) string {
+func formatResultMessage(msg string) string {
 	return fmt.Sprintf("%9v", msg)
 }
 
@@ -203,7 +203,7 @@ func isNewer(path string, except time.Time) bool {
 	return true
 }
 
-func shouldOverlayTest(filename string) bool {
+func shouldOverlay(filename string) bool {
 	for _, ext := range overlayExtensions {
 		if ext == strings.TrimLeft(filepath.Ext(filename), ".") {
 			return true
@@ -229,7 +229,7 @@ func getOverlayTargetFiles(baseDir string) []string {
 	return nil
 }
 
-func testOverlay(baseDir string, targetFiles []string, item Item, optE bool) []string {
+func overlay(baseDir string, targetFiles []string, item Item, optE bool) []string {
 	var s []string
 	path := filepath.Dir(item.Fullpath)
 	filename := item.Filename
@@ -301,7 +301,7 @@ func isOverlay(filename string, ext string, except string) bool {
 	return false
 }
 
-func testMaxPath(path string) (bool, int) {
+func maxPath(path string) (bool, int) {
 	num := utf8.RuneCountInString(path)
 	if num > maxPathThreshold {
 		return false, num
@@ -310,8 +310,8 @@ func testMaxPath(path string) (bool, int) {
 }
 
 func init() {
-	RootCmd.AddCommand(testCmd)
+	RootCmd.AddCommand(validateCmd)
 
-	testCmd.Flags().BoolP("verbose", "v", false, "Be verbose when testing, showing them as they are tested.")
-	testCmd.Flags().BoolP("expand", "e", false, "Be expand when checking for duplicates, include other directories")
+	validateCmd.Flags().BoolP("verbose", "v", false, "Be verbose when validating, showing them as they are validated.")
+	validateCmd.Flags().BoolP("expand", "e", false, "Be expand when checking for duplicates, include other directories")
 }
