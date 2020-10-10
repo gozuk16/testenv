@@ -43,7 +43,7 @@ var validateCmd = &cobra.Command{
 }
 
 var overlayExtensions []string
-var maxPathThreshold int
+var maxPathThreshold int = 50
 
 func validateFiles(path string, optE bool, optV bool) {
 	baseDir, list := readFile(path)
