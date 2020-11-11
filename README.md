@@ -1,11 +1,9 @@
 # gret
 Resource and Environment testing tool implemented with Go.
 
-Go実装の環境テストツール
+Go実装の環境チェックツール
 
-
-
-主にWindowsでファイルの構成と環境変数のテストをしたいけど、Serverspecを使うためにRuby入れたりしたくないし、GossはWindows対応してないっぽいので簡単なものを作り始めました。（いつ出来るものやら・・・）  
+Windowsでファイルの構成と環境変数のテストをしたいのでお手軽なツールを作り始めました。  
 とりあえず、ローカルで動けば自分としては全く問題ないので、リモート実行は実装する予定はありません。
 
 ## Usage
