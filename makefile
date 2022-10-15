@@ -1,8 +1,8 @@
 build:
-	go build gret.go
+	go build verifyenv.go
 
 run:
-	go run gret.go test
+	go run verifyenv.go test
 
 test:
 	go test -v ./...

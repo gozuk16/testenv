@@ -1,4 +1,4 @@
-module github.com/gozuk16/gret
+module github.com/gozuk16/verifyenv
 
 go 1.15
 
