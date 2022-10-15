@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/gozuk16/gret/cmd"
+	"github.com/gozuk16/verifyenv/cmd"
 )
 
 func main() {

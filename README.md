@@ -1,5 +1,5 @@
-# gret
-Resource and Environment testing tool implemented with Go.
+# verifyenv
+file and Environment verify tool implemented with Go.
 
 Go実装の環境チェックツール
 
@@ -11,7 +11,7 @@ Windowsでファイルの構成と環境変数のテストをしたいのでお�
 
 ### add
 ```
-$ gret add directory
+$ verifyenv add directory
 ```
 
 起点となるディレクトリを指定します。  
@@ -23,12 +23,12 @@ $ gret add directory
 含めたい場合は `-a` をつけて実行します。
 
 ```
-$ gret add -a directory
+$ verifyenv add -a directory
 ```
  
 ### validate
 ```
-$ gret validate testfile
+$ verifyenv validate testfile
 ```
 
 現状ではファイルについてテスト可能です。  
@@ -63,7 +63,7 @@ UNCを考慮してデフォルトでは220文字に設定してあります。
 デフォルトでは成功したケースの結果表示は行いません。  
 表示を行いたい場合は `-v` をつけて実行します。
 ```
-$ gret add -v directory
+$ verifyenv add -v directory
 ```
 
 ## ToDo
