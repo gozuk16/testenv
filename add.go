@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"encoding/json"
@@ -6,10 +6,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-
-	"github.com/spf13/cobra"
 )
 
+/*
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
@@ -30,6 +29,7 @@ var addCmd = &cobra.Command{
 		}
 	},
 }
+*/
 
 func searchFile(path string, optA bool) {
 	var f = File{}
@@ -103,10 +103,4 @@ func isDot(path string) bool {
 	}
 	//fmt.Printf("最後まで来た：%v\n", str)
 	return true
-}
-
-func init() {
-	RootCmd.AddCommand(addCmd)
-
-	addCmd.Flags().BoolP("all", "a", false, "Include directory entries whose names begin with a dot (.).")
 }

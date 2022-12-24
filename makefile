@@ -1,8 +1,8 @@
 build:
-	go build verifyenv.go
+	go build -o verifyenv
 
 run:
-	go run verifyenv.go test
+	go run main.go test
 
 test:
 	go test -v ./...

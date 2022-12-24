@@ -102,3 +102,12 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/go,vim,macos,windows
+
+# Binary
+*.jar
+
+aaa
+bbb
+ccc
+test*.json
+verifyenv

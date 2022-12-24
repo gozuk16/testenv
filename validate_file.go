@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"encoding/json"
@@ -12,35 +12,9 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/spf13/cobra"
-
 	"github.com/shiena/ansicolor"
 	"github.com/wsxiaoys/terminal/color"
 )
-
-// validateCmd represents the add command
-var validateCmd = &cobra.Command{
-	Use:   "validate",
-	Short: "validate config.json",
-	Long:  `execute validate`,
-	Run: func(cmd *cobra.Command, args []string) {
-		optE, err := cmd.Flags().GetBool("expand")
-		if err != nil {
-			fmt.Println(err)
-		}
-		optV, err := cmd.Flags().GetBool("verbose")
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		if len(args) > 0 {
-			//for i, _ := range args {
-			//	fmt.Println(args[i])
-			//}
-			validateFiles(args[0], optE, optV)
-		}
-	},
-}
 
 var overlayExtensions []string
 var maxPathThreshold int = 50
@@ -307,11 +281,4 @@ func maxPath(path string) (bool, int) {
 		return false, num
 	}
 	return true, num
-}
-
-func init() {
-	RootCmd.AddCommand(validateCmd)
-
-	validateCmd.Flags().BoolP("verbose", "v", false, "Be verbose when validating, showing them as they are validated.")
-	validateCmd.Flags().BoolP("expand", "e", false, "Be expand when checking for duplicates, include other directories")
 }
